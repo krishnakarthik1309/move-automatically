@@ -1,4 +1,6 @@
+#!/usr/bin/python
 import os
+import re
 import sys
 import time
 import subprocess
@@ -6,7 +8,8 @@ from ConfigParser import SafeConfigParser
 
 
 def load_reader(config):
-    config_directory = './config_files/'
+    config_directory = '/home/kvothe/Dropbox/repos/' +\
+        'mv_automatically/config_files/'
     config = (os.path.abspath(
         os.path.join(config_directory, config)))
 
@@ -15,31 +18,50 @@ def load_reader(config):
     return reader
 
 
+def load_sleep_time(config):
+    reader = load_reader(config)
+    sleep_time = reader.get('time', 'sleep')
+    return float(sleep_time)
+
+
 def load_path_to_watch(config):
     reader = load_reader(config)
     path_to_watch = reader.get('source', 'src_path')
     return path_to_watch
 
 
+def is_compressed(file):
+    dicti = {'.tar.bz2', '.tar.gz',
+             '.bz2', '.rar',
+             '.gz', '.tar',
+             '.tbz2', '.tgz',
+             '.zip', '.Z', '.7z'}
+    for ext in dicti:
+        match = re.search(ext, file)
+        if match:
+            return match
+    return match
+
+
 def move(config='config.ini'):
     path_to_watch = load_path_to_watch(config)
-    before = os.listdir(path_to_watch)
+    sleep_time = load_sleep_time(config)
+    before = []
 
     try:
         while True:
-            time.sleep(5)
+            time.sleep(sleep_time)
             after = os.listdir(path_to_watch)
-            print 'after:'
-            print after
-
             new_files = []
             for f in after:
                 if f not in before:
-                    new_files.append(f)
-            print 'new_files:'
-            print new_files
+                    f = os.path.join(path_to_watch, f)
+                    if is_compressed(f):
+                        os.system('./extract.sh %s %s' % (f, path_to_watch))
+                        subprocess.call(['notify-send', '"extracted"'])
+                    else:
+                        new_files.append(f)
             for new_file in new_files:
-                print '1'
                 move_to_destination(new_file)
             before = after
     except KeyboardInterrupt:
@@ -47,30 +69,29 @@ def move(config='config.ini'):
 
 
 def move_to_destination(new_file):
-    print '2'
     extension = get_extension(new_file)
     destination = get_destination(extension)
     if destination is not None:
-        print '5'
-        subprocess.call(['mv',
-                         '/home/kvothe/Downloads/' + new_file,
-                         destination])
+        subprocess.call(['mv', new_file, destination])
+        subprocess.call(['notify-send',
+                         'moved %s to %s' % (new_file, destination)])
     else:
         return
 
 
 def get_extension(file):
-    print '3'
-    file_name, file_extension = os.path.splitext(file)
+    file_extension = os.path.splitext(file)[1]
     return file_extension
 
 
 def get_destination(extension):
-    print '4'
     reader = load_reader('config.ini')
 
-    destination = reader.get('destination', extension[1:])
-    return destination
+    try:
+        destination = reader.get('destination', extension[1:])
+        return destination
+    except:
+        return
 
 
 if __name__ == '__main__':
