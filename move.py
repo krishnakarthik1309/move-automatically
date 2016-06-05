@@ -7,9 +7,11 @@ import subprocess
 from ConfigParser import SafeConfigParser
 
 
+this_path = '/home/kvothe/Dropbox/repos/'
+
+
 def load_reader(config):
-    config_directory = '/home/kvothe/Dropbox/repos/' +\
-        'mv_automatically/config_files/'
+    config_directory = this_path + 'mv_automatically/config_files/'
     config = (os.path.abspath(
         os.path.join(config_directory, config)))
 
@@ -58,6 +60,7 @@ def move(config='config.ini'):
                     f = os.path.join(path_to_watch, f)
                     if is_compressed(f):
                         os.system('./extract.sh %s %s' % (f, path_to_watch))
+                        subprocess.call(['rm', f])
                         subprocess.call(['notify-send', '"extracted"'])
                     else:
                         new_files.append(f)

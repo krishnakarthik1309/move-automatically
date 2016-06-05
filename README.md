@@ -6,8 +6,13 @@ Example: you can download an .mp4 video to Downloads but this program will move 
 # Usage
 make move.py and extract.sh as executable.<br \>
 chmod u+x 'file_name' makes it executable.<br \>
+For the first time you must modify this_path(in move.py) to the path of directory in which this repository is present.<br \>
 To change the settings modify config.ini in config_files directory.<br \>
 Add an extension and its destination in config.ini. An example extension is given in config.ini.<br \>
 Now you can run it directly from terminal by ./move.py from this repository directory.<br \>
 Another way is to add it to your startup applications so that it starts in the background.<br \>
+
+# Note
+This also includes auto extraction and the compressed file will be deleted as it served it purpose.<br \>
+The default sleep_time is 5s for this program, you can modify it in config.ini.<br\>
 
