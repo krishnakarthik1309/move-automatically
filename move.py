@@ -4,19 +4,13 @@ import re
 import sys
 import time
 import subprocess
-from ConfigParser import SafeConfigParser
-
-
-this_path = '/home/kvothe/Dropbox/repos/'
+from ConfigParser import SafeConfigParse
 
 
 def load_reader(config):
-    config_directory = this_path + 'mv_automatically/config_files/'
-    config = (os.path.abspath(
-        os.path.join(config_directory, config)))
-
+    config_file_path = os.path.abspath(config)
     reader = SafeConfigParser()
-    reader.read(config)
+    reader.read(config_file_path)
     return reader
 
 
@@ -45,7 +39,7 @@ def is_compressed(file):
     return match
 
 
-def move(config='config.ini'):
+def move(config='config_files/config.ini'):
     path_to_watch = load_path_to_watch(config)
     sleep_time = load_sleep_time(config)
     before = []
